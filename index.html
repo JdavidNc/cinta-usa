@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cinta USA — Convertidor de medidas</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1E2124">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cinta USA">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --graphite:#1E2124;
+    --panel:#26292D;
+    --panel-raised:#2E3237;
+    --tape-yellow:#F2C34C;
+    --tape-yellow-dim:#C99F35;
+    --steel:#8B95A1;
+    --paper:#F5F3EE;
+    --red:#E8543E;
+    --line:#3A3E43;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--graphite);
+    color:var(--paper);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--graphite);
+  }
+
+  /* Header */
+  header{
+    padding:28px 24px 20px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    top:0; right:-40px;
+    width:160px; height:160px;
+    background:var(--tape-yellow);
+    opacity:0.06;
+    border-radius:50%;
+  }
+  h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-size:30px;
+    letter-spacing:0.3px;
+    margin:0 0 6px;
+    color:var(--paper);
+  }
+  h1 span{color:var(--tape-yellow);}
+  header p{
+    margin:0;
+    color:var(--steel);
+    font-size:14px;
+    line-height:1.5;
+    max-width:34ch;
+  }
+
+  /* Input card */
+  .card{
+    margin:20px 20px 0;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+  }
+  .field-label{
+    font-size:13px;
+    color:var(--steel);
+    margin-bottom:8px;
+    display:block;
+  }
+  .input-row{
+    display:flex;
+    gap:10px;
+    align-items:stretch;
+  }
+  input[type=text]{
+    flex:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:22px;
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    color:var(--paper);
+    border-radius:8px;
+    padding:12px 14px;
+    min-width:0;
+    outline:none;
+  }
+  input[type=text]:focus{border-color:var(--tape-yellow);}
+  input::placeholder{color:#5C6167;}
+
+  .units{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  .unit-btn{
+    flex:1;
+    background:var(--panel-raised);
+    border:1px solid var(--line);
+    color:var(--steel);
+    padding:10px 6px;
+    border-radius:8px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+  }
+  .unit-btn.active{
+    background:var(--tape-yellow);
+    border-color:var(--tape-yellow);
+    color:var(--graphite);
+    font-weight:600;
+  }
+
+  .convert-btn{
+    margin-top:16px;
+    width:100%;
+    padding:14px;
+    background:var(--red);
+    border:none;
+    border-radius:8px;
+    color:var(--paper);
+    font-family:'Oswald', sans-serif;
+    font-size:17px;
+    font-weight:600;
+    letter-spacing:0.5px;
+    cursor:pointer;
+  }
+  .convert-btn:active{transform:translateY(1px);}
+
+  /* Result */
+  .result{
+    margin:20px 20px 0;
+    display:none;
+  }
+  .result.show{display:block;}
+
+  .result-headline{
+    text-align:center;
+    padding:6px 0 4px;
+  }
+  .result-number{
+    font-family:'Oswald', sans-serif;
+    font-size:52px;
+    font-weight:700;
+    color:var(--tape-yellow);
+    line-height:1;
+  }
+  .result-sub{
+    color:var(--steel);
+    font-size:14px;
+    margin-top:8px;
+  }
+
+  /* Ruler */
+  .ruler-card{
+    margin:16px 20px 32px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px 16px 18px;
+  }
+  .ruler-title{
+    font-size:12px;
+    color:var(--steel);
+    margin-bottom:10px;
+  }
+  .ruler-scroll{
+    overflow-x:auto;
+    border-radius:6px;
+    background:#EDE6D3;
+    -webkit-overflow-scrolling:touch;
+  }
+  .ruler-scroll::-webkit-scrollbar{height:6px;}
+  .ruler-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+  canvas{display:block;}
+
+  .empty-hint{
+    margin:60px 24px;
+    text-align:center;
+    color:#4A4F55;
+    font-size:14px;
+    line-height:1.6;
+  }
+  .empty-hint svg{margin-bottom:14px; opacity:0.5;}
+
+  footer{
+    margin-top:auto;
+    padding:18px 24px 26px;
+    text-align:center;
+    color:#4A4F55;
+    font-size:11px;
+    letter-spacing:0.3px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>Cinta <span>USA</span></h1>
+    <p>Convierte cualquier medida al punto más cercano en una cinta métrica imperial, redondeado a 1/16".</p>
+  </header>
+
+  <div class="card">
+    <label class="field-label" for="valueInput">Medida o cálculo</label>
+    <div class="input-row">
+      <input type="text" id="valueInput" inputmode="text" placeholder="Ej. 13 1/4 + 2 1/2">
+    </div>
+    <div class="units" id="unitButtons">
+      <button class="unit-btn active" data-unit="cm">cm</button>
+      <button class="unit-btn" data-unit="mm">mm</button>
+      <button class="unit-btn" data-unit="in">pulgadas</button>
+    </div>
+    <button class="convert-btn" id="convertBtn">Convertir</button>
+  </div>
+
+  <div class="result" id="resultBlock">
+    <div class="result-headline">
+      <div class="result-number" id="resultNumber">2 11/16"</div>
+      <div class="result-sub" id="resultSub">= 6.8 cm → 2.677" reales, redondeado a 1/16"</div>
+    </div>
+  </div>
+
+  <div class="ruler-card" id="rulerCard" style="display:none;">
+    <div class="ruler-title">Punto en la cinta de medir</div>
+    <div class="ruler-scroll" id="rulerScroll">
+      <canvas id="rulerCanvas"></canvas>
+    </div>
+  </div>
+
+  <div class="empty-hint" id="emptyHint">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 7v4M10 7v3M14 7v4M18 7v3"/></svg>
+    <div>Ingresa una medida arriba para ver<br>el punto exacto en la cinta.</div>
+  </div>
+
+  <footer>PRECISIÓN: 1/16 DE PULGADA</footer>
+</div>
+
+<script>
+  const valueInput = document.getElementById('valueInput');
+  const unitButtons = document.getElementById('unitButtons');
+  const convertBtn = document.getElementById('convertBtn');
+  const resultBlock = document.getElementById('resultBlock');
+  const resultNumber = document.getElementById('resultNumber');
+  const resultSub = document.getElementById('resultSub');
+  const rulerCard = document.getElementById('rulerCard');
+  const rulerScroll = document.getElementById('rulerScroll');
+  const rulerCanvas = document.getElementById('rulerCanvas');
+  const emptyHint = document.getElementById('emptyHint');
+
+  let currentUnit = 'cm';
+
+  unitButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentUnit = btn.dataset.unit;
+    valueInput.placeholder = currentUnit === 'in' ? 'Ej. 13 1/4 + 2 1/2' : (currentUnit === 'mm' ? 'Ej. 68 * 2' : 'Ej. 6.8 + 3.2');
+  });
+
+  // Convierte números mixtos como "13 1/4" en "(13+1/4)" para que el
+  // evaluador los sume correctamente en vez de interpretarlos como error.
+  function preprocessFractions(expr) {
+    return expr.replace(/(\d+(?:\.\d+)?)\s+(\d+\/\d+)/g, '($1+$2)');
+  }
+
+  // Evalúa expresiones matemáticas simples: + - * / ( ) y fracciones como 1/2,
+  // incluyendo números mixtos como "13 1/4". Solo se permiten dígitos, puntos,
+  // espacios y los operadores básicos: nada de letras ni acceso a otras
+  // funciones, así que es seguro correrlo en el navegador.
+  function evaluateExpression(raw) {
+    let cleaned = raw.replace(/,/g, '.').trim();
+    if (cleaned === '') throw new Error('vacío');
+    if (!/^[0-9+\-*/().\s]+$/.test(cleaned)) throw new Error('caracteres no permitidos');
+    cleaned = preprocessFractions(cleaned);
+    if (/[+\-*/.]{2,}/.test(cleaned.replace(/\s/g, ''))) {
+      // permite cosas como "2 + -3" pero bloquea "2 ++ 3" salvo el caso de doble signo válido
+      if (!/^[0-9.\s()+\-*/]*$/.test(cleaned)) throw new Error('expresión inválida');
+    }
+    // eslint-disable-next-line no-new-func
+    const result = Function('"use strict"; return (' + cleaned + ')')();
+    if (typeof result !== 'number' || !isFinite(result)) throw new Error('resultado inválido');
+    return result;
+  }
+
+  function toInches(value, unit) {
+    if (unit === 'cm') return value / 2.54;
+    if (unit === 'mm') return value / 25.4;
+    return value;
+  }
+
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+  function formatResult(inches) {
+    const totalSixteenths = Math.round(inches * 16);
+    const wholeInches = Math.floor(totalSixteenths / 16);
+    let remainder = totalSixteenths % 16;
+
+    let fracStr = '';
+    if (remainder > 0) {
+      const divisor = gcd(remainder, 16);
+      fracStr = (remainder / divisor) + '/' + (16 / divisor);
+    }
+
+    const feet = Math.floor(wholeInches / 12);
+    const inchesLeft = wholeInches % 12;
+
+    let headline;
+    if (wholeInches === 0 && remainder === 0) {
+      headline = '0"';
+    } else if (remainder === 0) {
+      headline = wholeInches + '"';
+    } else if (wholeInches === 0) {
+      headline = fracStr + '"';
+    } else {
+      headline = wholeInches + ' ' + fracStr + '"';
+    }
+
+    let feetStr = null;
+    if (feet > 0) {
+      let inchPart = inchesLeft === 0 && remainder === 0 ? '0"' :
+        (inchesLeft === 0 ? fracStr + '"' : (remainder === 0 ? inchesLeft + '"' : inchesLeft + ' ' + fracStr + '"'));
+      feetStr = feet + " ft " + inchPart;
+    }
+
+    return {
+      headline,
+      feetStr,
+      totalSixteenths,
+      wholeInches,
+      remainder
+    };
+  }
+
+  function drawRuler(targetInches) {
+    const PPI = 64;
+    const maxInches = Math.max(Math.ceil(targetInches) + 2, 6);
+    const width = (maxInches * PPI) + 20;
+    const height = 130;
+    const dpr = window.devicePixelRatio || 1;
+
+    rulerCanvas.width = width * dpr;
+    rulerCanvas.height = height * dpr;
+    rulerCanvas.style.width = width + 'px';
+    rulerCanvas.style.height = height + 'px';
+    const ctx = rulerCanvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    // background
+    ctx.fillStyle = '#EDE6D3';
+    ctx.fillRect(0, 0, width, height);
+
+    const baseY = 92;
+    const originX = 10;
+
+    // ticks every 1/16"
+    const totalSixteenths = maxInches * 16;
+    ctx.strokeStyle = '#2A2620';
+    ctx.fillStyle = '#2A2620';
+    ctx.font = '600 15px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+
+    for (let i = 0; i <= totalSixteenths; i++) {
+      const x = originX + (i / 16) * PPI;
+      let tickH;
+      if (i % 16 === 0) tickH = 42;
+      else if (i % 8 === 0) tickH = 32;
+      else if (i % 4 === 0) tickH = 24;
+      else if (i % 2 === 0) tickH = 17;
+      else tickH = 11;
+
+      ctx.lineWidth = (i % 16 === 0) ? 2 : 1;
+      ctx.beginPath();
+      ctx.moveTo(x, baseY);
+      ctx.lineTo(x, baseY - tickH);
+      ctx.stroke();
+
+      if (i % 16 === 0) {
+        ctx.fillText(String(i / 16), x, baseY - tickH - 8);
+      }
+    }
+
+    // baseline
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(originX, baseY);
+    ctx.lineTo(originX + maxInches * PPI, baseY);
+    ctx.stroke();
+
+    // marker
+    const markerX = originX + targetInches * PPI;
+    ctx.strokeStyle = '#E8543E';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(markerX, 14);
+    ctx.lineTo(markerX, baseY + 6);
+    ctx.stroke();
+
+    // marker triangle
+    ctx.fillStyle = '#E8543E';
+    ctx.beginPath();
+    ctx.moveTo(markerX - 6, 14);
+    ctx.lineTo(markerX + 6, 14);
+    ctx.lineTo(markerX, 24);
+    ctx.closePath();
+    ctx.fill();
+
+    return { width, markerX };
+  }
+
+  function handleConvert() {
+    const raw = valueInput.value;
+    let value;
+    try {
+      value = evaluateExpression(raw);
+    } catch (err) {
+      valueInput.style.borderColor = '#E8543E';
+      resultSub.textContent = '';
+      resultNumber.textContent = 'Expresión inválida';
+      resultBlock.classList.add('show');
+      rulerCard.style.display = 'none';
+      emptyHint.style.display = 'none';
+      return;
+    }
+    if (value < 0) {
+      valueInput.style.borderColor = '#E8543E';
+      return;
+    }
+    valueInput.style.borderColor = '';
+
+    const realInches = toInches(value, currentUnit);
+    const roundedInches = Math.round(realInches * 16) / 16;
+    const r = formatResult(roundedInches);
+
+    resultNumber.textContent = r.feetStr ? r.headline + '  (' + r.feetStr + ')' : r.headline;
+
+    const unitLabel = currentUnit === 'cm' ? 'cm' : (currentUnit === 'mm' ? 'mm' : 'in');
+    const exprTrimmed = raw.trim();
+    const showsOperation = /[+\-*/]/.test(exprTrimmed.replace(/^-/, ''));
+    const opText = showsOperation ? (exprTrimmed + ' = ' + (Math.round(value * 1000) / 1000) + ' ' + unitLabel + ' → ') : '';
+    resultSub.textContent = opText + realInches.toFixed(3) + '" reales → redondeado a 1/16"';
+
+    resultBlock.classList.add('show');
+    rulerCard.style.display = 'block';
+    emptyHint.style.display = 'none';
+
+    const { width, markerX } = drawRuler(roundedInches);
+    requestAnimationFrame(() => {
+      const scrollWidth = rulerScroll.clientWidth;
+      rulerScroll.scrollLeft = Math.max(0, markerX - scrollWidth / 2);
+    });
+  }
+
+  convertBtn.addEventListener('click', handleConvert);
+  valueInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleConvert();
+  });
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
