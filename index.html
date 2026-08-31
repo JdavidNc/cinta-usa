@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Cinta USA — Convertidor de medidas</title>
+<title>Cinta USA — Convertidor y Doblez de tubería</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1E2124">
+<meta name="theme-color" content="#1656D6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,27 +16,53 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --graphite:#1E2124;
-    --panel:#26292D;
-    --panel-raised:#2E3237;
-    --tape-yellow:#F2C34C;
-    --tape-yellow-dim:#C99F35;
-    --steel:#8B95A1;
-    --paper:#F5F3EE;
-    --red:#E8543E;
-    --line:#3A3E43;
+  :root[data-theme="light"]{
+    --bg:#FFFFFF;
+    --panel:#F4F7FC;
+    --panel-raised:#E8EFFA;
+    --blue:#1656D6;
+    --blue-dim:#4C7FE0;
+    --blue-soft:#DCE7FA;
+    --text:#10182B;
+    --muted:#5B6B85;
+    --line:#DEE6F3;
+    --red:#D8392C;
+    --tape-bg:#F4F1E4;
+    --tape-ink:#26241C;
+    --key-bg:#F4F7FC;
+    --key-active:#DCE7FA;
+    --pipe:#5B6B85;
+    --pipe-dark:#3A4658;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B0D10;
+    --panel:#14171C;
+    --panel-raised:#1C2027;
+    --blue:#4C8DFF;
+    --blue-dim:#3568C4;
+    --blue-soft:#1B2A44;
+    --text:#F3F5F9;
+    --muted:#8A94A6;
+    --line:#262B33;
+    --red:#FF6152;
+    --tape-bg:#E7E1CC;
+    --tape-ink:#26241C;
+    --key-bg:#181B21;
+    --key-active:#233251;
+    --pipe:#8A94A6;
+    --pipe-dark:#5B6B85;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--graphite);
-    color:var(--paper);
+    background:var(--bg);
+    color:var(--text);
     font-family:'IBM Plex Sans', sans-serif;
     min-height:100vh;
     display:flex;
     justify-content:center;
     -webkit-tap-highlight-color:transparent;
+    transition:background 0.2s ease, color 0.2s ease;
   }
   .app{
     width:100%;
@@ -44,179 +70,291 @@
     min-height:100vh;
     display:flex;
     flex-direction:column;
-    background:var(--graphite);
+    background:var(--bg);
   }
 
-  /* Header */
   header{
-    padding:28px 24px 20px;
+    padding:24px 20px 18px;
     border-bottom:1px solid var(--line);
-    position:relative;
-    overflow:hidden;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
   }
-  header::before{
-    content:"";
-    position:absolute;
-    top:0; right:-40px;
-    width:160px; height:160px;
-    background:var(--tape-yellow);
-    opacity:0.06;
-    border-radius:50%;
-  }
+  .header-text{max-width:64%;}
   h1{
     font-family:'Oswald', sans-serif;
     font-weight:700;
-    font-size:30px;
+    font-size:26px;
     letter-spacing:0.3px;
     margin:0 0 6px;
-    color:var(--paper);
+    color:var(--text);
   }
-  h1 span{color:var(--tape-yellow);}
+  h1 span{color:var(--blue);}
   header p{
     margin:0;
-    color:var(--steel);
-    font-size:14px;
+    color:var(--muted);
+    font-size:13px;
     line-height:1.5;
-    max-width:34ch;
   }
+  .header-controls{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .icon-btn{
+    width:38px; height:38px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .icon-btn svg{width:18px;height:18px;}
+  .lang-toggle{
+    display:flex;
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .lang-toggle button{
+    border:none;
+    background:var(--panel);
+    color:var(--muted);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    padding:7px 10px;
+    cursor:pointer;
+  }
+  .lang-toggle button.active{background:var(--blue); color:#fff;}
 
-  /* Input card */
+  /* Main section tabs */
+  .main-tabs{
+    display:flex;
+    gap:8px;
+    margin:16px 20px 0;
+  }
+  .main-tab{
+    flex:1;
+    padding:11px 8px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--muted);
+    font-family:'Oswald', sans-serif;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.2px;
+    cursor:pointer;
+  }
+  .main-tab.active{background:var(--blue); border-color:var(--blue); color:#fff;}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* Cards (shared) */
   .card{
-    margin:20px 20px 0;
+    margin:18px 20px 0;
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:10px;
-    padding:20px;
+    padding:18px;
   }
   .field-label{
-    font-size:13px;
-    color:var(--steel);
+    font-size:12px;
+    color:var(--muted);
     margin-bottom:8px;
     display:block;
   }
-  .input-row{
-    display:flex;
-    gap:10px;
-    align-items:stretch;
-  }
   input[type=text]{
-    flex:1;
+    width:100%;
     font-family:'IBM Plex Mono', monospace;
     font-size:22px;
-    background:var(--panel-raised);
+    background:var(--bg);
     border:1px solid var(--line);
-    color:var(--paper);
+    color:var(--text);
     border-radius:8px;
     padding:12px 14px;
-    min-width:0;
     outline:none;
   }
-  input[type=text]:focus{border-color:var(--tape-yellow);}
-  input::placeholder{color:#5C6167;}
+  input[type=text]:focus{border-color:var(--blue);}
+  input::placeholder{color:var(--muted); opacity:0.6;}
 
-  .units{
+  .units, .chip-row{
     display:flex;
     gap:8px;
     margin-top:12px;
+    flex-wrap:wrap;
   }
   .unit-btn{
     flex:1;
-    background:var(--panel-raised);
+    min-width:56px;
+    background:var(--bg);
     border:1px solid var(--line);
-    color:var(--steel);
-    padding:10px 6px;
+    color:var(--muted);
+    padding:9px 6px;
     border-radius:8px;
     font-family:'IBM Plex Sans', sans-serif;
     font-size:13px;
     font-weight:500;
     cursor:pointer;
   }
-  .unit-btn.active{
-    background:var(--tape-yellow);
-    border-color:var(--tape-yellow);
-    color:var(--graphite);
-    font-weight:600;
-  }
+  .unit-btn.active{background:var(--blue); border-color:var(--blue); color:#fff; font-weight:600;}
 
-  .convert-btn{
-    margin-top:16px;
-    width:100%;
-    padding:14px;
-    background:var(--red);
-    border:none;
-    border-radius:8px;
-    color:var(--paper);
-    font-family:'Oswald', sans-serif;
-    font-size:17px;
-    font-weight:600;
-    letter-spacing:0.5px;
+  .chips{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+    overflow-x:auto;
+    padding-bottom:2px;
+  }
+  .chip{
+    flex-shrink:0;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--blue);
+    padding:7px 12px;
+    border-radius:20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:500;
     cursor:pointer;
   }
-  .convert-btn:active{transform:translateY(1px);}
 
-  /* Result */
-  .result{
-    margin:20px 20px 0;
-    display:none;
+  .keypad{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
   }
+  .key{
+    background:var(--key-bg);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:8px;
+    padding:14px 0;
+    font-family:'Oswald', sans-serif;
+    font-size:18px;
+    font-weight:500;
+    cursor:pointer;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  .key:active{background:var(--key-active);}
+  .key.op{color:var(--blue);}
+  .key.clear{color:var(--red);}
+  .key.equals{background:var(--blue); border-color:var(--blue); color:#fff; font-weight:700;}
+  .key.equals:active{background:var(--blue-dim);}
+
+  .result{margin:20px 20px 0; display:none;}
   .result.show{display:block;}
-
-  .result-headline{
-    text-align:center;
-    padding:6px 0 4px;
-  }
+  .result-headline{text-align:center; padding:6px 0 4px;}
   .result-number{
     font-family:'Oswald', sans-serif;
-    font-size:52px;
+    font-size:44px;
     font-weight:700;
-    color:var(--tape-yellow);
-    line-height:1;
+    color:var(--blue);
+    line-height:1.1;
   }
-  .result-sub{
-    color:var(--steel);
-    font-size:14px;
-    margin-top:8px;
+  .result-sub{color:var(--muted); font-size:13px; margin-top:8px; text-align:center; line-height:1.6;}
+  .result-warning{
+    color:var(--red);
+    font-size:12.5px;
+    margin-top:10px;
+    text-align:center;
+    line-height:1.5;
+    background:var(--panel-raised);
+    border-radius:8px;
+    padding:10px 12px;
   }
 
-  /* Ruler */
-  .ruler-card{
-    margin:16px 20px 32px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:16px 16px 18px;
-  }
-  .ruler-title{
-    font-size:12px;
-    color:var(--steel);
-    margin-bottom:10px;
-  }
-  .ruler-scroll{
-    overflow-x:auto;
-    border-radius:6px;
-    background:#EDE6D3;
-    -webkit-overflow-scrolling:touch;
-  }
+  .ruler-card{margin:16px 20px 32px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 16px 18px;}
+  .ruler-title{font-size:12px; color:var(--muted); margin-bottom:10px;}
+  .ruler-scroll{overflow-x:auto; border-radius:6px; background:var(--tape-bg); -webkit-overflow-scrolling:touch;}
   .ruler-scroll::-webkit-scrollbar{height:6px;}
-  .ruler-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+  .ruler-scroll::-webkit-scrollbar-thumb{background:var(--line); border-radius:3px;}
   canvas{display:block;}
 
-  .empty-hint{
-    margin:60px 24px;
-    text-align:center;
-    color:#4A4F55;
-    font-size:14px;
-    line-height:1.6;
-  }
-  .empty-hint svg{margin-bottom:14px; opacity:0.5;}
+  .empty-hint{margin:50px 24px; text-align:center; color:var(--muted); font-size:13px; line-height:1.6; opacity:0.7;}
+  .empty-hint svg{margin-bottom:14px; opacity:0.6;}
 
-  footer{
-    margin-top:auto;
-    padding:18px 24px 26px;
+  footer{margin-top:auto; padding:16px 24px 24px; text-align:center; color:var(--muted); font-size:11px; letter-spacing:0.3px; opacity:0.7;}
+
+  /* Bending-specific */
+  .subsection-label{font-size:13px; font-weight:600; color:var(--text); margin:16px 0 0;}
+  .subsection-label:first-child{margin-top:0;}
+  .helper-note{font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.5;}
+
+  .stats-row{
+    display:flex;
+    gap:10px;
+    margin-top:14px;
+  }
+  .stat-box{
+    flex:1;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 10px;
     text-align:center;
-    color:#4A4F55;
-    font-size:11px;
-    letter-spacing:0.3px;
+  }
+  .stat-value{font-family:'Oswald', sans-serif; font-size:22px; font-weight:700; color:var(--blue);}
+  .stat-label{font-size:10.5px; color:var(--muted); margin-top:4px; line-height:1.3;}
+
+  .diagram-card{margin:16px 20px 0; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px;}
+  .diagram-svg-wrap{background:var(--bg); border-radius:8px; overflow:hidden;}
+  .bend-diagram{display:block; width:100%; height:auto;}
+  .bend-diagram .pivot-group{transform-box:view-box; transition:transform 0.9s cubic-bezier(.45,0,.2,1);}
+  .bend-diagram .icon-fade{transition:opacity 0.35s ease; opacity:0;}
+  .bend-diagram .mark-tick{stroke:var(--red);}
+  .bend-diagram .mark-text{fill:var(--red); font-family:'IBM Plex Mono', monospace; font-size:13px; font-weight:600;}
+  .bend-diagram .pipe-line{stroke:var(--pipe); stroke-linecap:round;}
+  .bend-diagram .dash-ref{stroke:var(--line); stroke-dasharray:4 4;}
+
+  .step-caption{
+    margin-top:14px;
+    font-size:13.5px;
+    color:var(--text);
+    line-height:1.55;
+    min-height:58px;
+  }
+  .step-caption b{color:var(--blue);}
+
+  .step-nav{display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:10px;}
+  .step-nav-btn{
+    flex:0 0 auto;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .step-nav-btn:disabled{opacity:0.35; cursor:default;}
+  .step-nav-btn.primary{background:var(--blue); border-color:var(--blue); color:#fff;}
+  .step-dots{display:flex; gap:6px;}
+  .step-dot{width:7px; height:7px; border-radius:50%; background:var(--line);}
+  .step-dot.active{background:var(--blue);}
+
+  .caveat{
+    margin:14px 20px 0;
+    font-size:11.5px;
+    color:var(--muted);
+    line-height:1.6;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--panel);
   }
 </style>
 </head>
@@ -224,103 +362,666 @@
 <div class="app">
 
   <header>
-    <h1>Cinta <span>USA</span></h1>
-    <p>Convierte cualquier medida al punto más cercano en una cinta métrica imperial, redondeado a 1/16".</p>
+    <div class="header-text">
+      <h1 id="appTitle">Cinta <span>USA</span></h1>
+      <p id="appSubtitle">Convierte tu medida al punto más cercano en una cinta métrica imperial, redondeada a 1/16".</p>
+    </div>
+    <div class="header-controls">
+      <button class="icon-btn" id="themeToggle" aria-label="Cambiar tema" type="button">
+        <svg id="themeIconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg id="themeIconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+      </button>
+      <div class="lang-toggle" id="langToggle">
+        <button data-lang="es" class="active" type="button">ES</button>
+        <button data-lang="en" type="button">EN</button>
+      </div>
+    </div>
   </header>
 
-  <div class="card">
-    <label class="field-label" for="valueInput">Medida o cálculo</label>
-    <div class="input-row">
+  <div class="main-tabs">
+    <button class="main-tab active" data-view="converter" id="tabConverter">Convertidor</button>
+    <button class="main-tab" data-view="bending" id="tabBending">Doblez</button>
+  </div>
+
+  <!-- ===================== CONVERTER VIEW ===================== -->
+  <div class="view active" id="viewConverter">
+    <div class="card">
+      <label class="field-label" id="inputLabel" for="valueInput">Medida o cálculo</label>
       <input type="text" id="valueInput" inputmode="text" placeholder="Ej. 13 1/4 + 2 1/2">
+
+      <div class="units" id="unitButtons">
+        <button class="unit-btn active" data-unit="cm">cm</button>
+        <button class="unit-btn" data-unit="mm">mm</button>
+        <button class="unit-btn" data-unit="in" id="unitInLabel">pulgadas</button>
+      </div>
+
+      <div class="chips" id="fractionChips">
+        <button class="chip" data-frac="1/16">1/16</button>
+        <button class="chip" data-frac="1/8">1/8</button>
+        <button class="chip" data-frac="1/4">1/4</button>
+        <button class="chip" data-frac="1/2">1/2</button>
+        <button class="chip" data-frac="3/4">3/4</button>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button class="key" data-val="7">7</button>
+        <button class="key" data-val="8">8</button>
+        <button class="key" data-val="9">9</button>
+        <button class="key op" data-val="/">÷</button>
+
+        <button class="key" data-val="4">4</button>
+        <button class="key" data-val="5">5</button>
+        <button class="key" data-val="6">6</button>
+        <button class="key op" data-val="*">×</button>
+
+        <button class="key" data-val="1">1</button>
+        <button class="key" data-val="2">2</button>
+        <button class="key" data-val="3">3</button>
+        <button class="key op" data-val="-">−</button>
+
+        <button class="key" data-val="(">(</button>
+        <button class="key" data-val=")">)</button>
+        <button class="key" data-action="back">⌫</button>
+        <button class="key op" data-val="+">+</button>
+
+        <button class="key clear" data-action="clear" id="clearKey">C</button>
+        <button class="key" data-val="0">0</button>
+        <button class="key" data-val=".">.</button>
+        <button class="key equals" data-action="equals">=</button>
+      </div>
     </div>
-    <div class="units" id="unitButtons">
-      <button class="unit-btn active" data-unit="cm">cm</button>
-      <button class="unit-btn" data-unit="mm">mm</button>
-      <button class="unit-btn" data-unit="in">pulgadas</button>
+
+    <div class="result" id="resultBlock">
+      <div class="result-headline">
+        <div class="result-number" id="resultNumber">2 11/16"</div>
+        <div class="result-sub" id="resultSub"></div>
+      </div>
     </div>
-    <button class="convert-btn" id="convertBtn">Convertir</button>
+
+    <div class="ruler-card" id="rulerCard" style="display:none;">
+      <div class="ruler-title" id="rulerTitle">Punto en la cinta de medir</div>
+      <div class="ruler-scroll" id="rulerScroll">
+        <canvas id="rulerCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="empty-hint" id="emptyHint">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 7v4M10 7v3M14 7v4M18 7v3"/></svg>
+      <div id="emptyHintText">Ingresa una medida arriba para ver<br>el punto exacto en la cinta.</div>
+    </div>
   </div>
 
-  <div class="result" id="resultBlock">
-    <div class="result-headline">
-      <div class="result-number" id="resultNumber">2 11/16"</div>
-      <div class="result-sub" id="resultSub">= 6.8 cm → 2.677" reales, redondeado a 1/16"</div>
+  <!-- ===================== BENDING VIEW ===================== -->
+  <div class="view" id="viewBending">
+    <div class="card">
+      <div class="subsection-label" id="bendTypeLabel">Tipo de doblez</div>
+      <div class="chip-row" id="bendTypeButtons">
+        <button class="unit-btn active" data-bend="stub" id="bendTypeStubBtn">90° (Stub)</button>
+        <button class="unit-btn" data-bend="offset" id="bendTypeOffsetBtn">Offset</button>
+        <button class="unit-btn" data-bend="saddle3" id="bendTypeSaddle3Btn">Saddle 3 puntos</button>
+        <button class="unit-btn" data-bend="saddle4" id="bendTypeSaddle4Btn">Saddle 4 puntos</button>
+      </div>
+
+      <div id="conduitTypeSection">
+        <div class="subsection-label" id="conduitTypeLabel">Tipo de tubería</div>
+        <div class="chip-row" id="conduitTypeButtons">
+          <button class="unit-btn active" data-conduit="emt">EMT</button>
+          <button class="unit-btn" data-conduit="rigid" id="conduitRigidBtn">Rígida / IMC</button>
+        </div>
+
+        <div id="sizeSection">
+          <div class="subsection-label" id="sizeLabel">Diámetro</div>
+          <div class="chip-row" id="sizeButtons"></div>
+          <div class="helper-note" id="rigidHint" style="display:none;"></div>
+        </div>
+
+        <div id="customDeductSection" style="display:none;">
+          <div class="subsection-label" id="customDeductLabel">Deducción de tu bender (pulg)</div>
+          <input type="text" id="customDeductInput" inputmode="decimal" placeholder="Ej. 9">
+          <div class="helper-note" id="customDeductHint"></div>
+        </div>
+      </div>
+
+      <div id="stubHeightSection">
+        <div class="subsection-label" id="stubHeightLabel">Altura deseada del stub (pulg)</div>
+        <input type="text" id="stubHeightInput" inputmode="text" placeholder='Ej. 11 1/4'>
+        <div class="chips" id="stubFractionChips">
+          <button class="chip" data-target="stub" data-frac="1/16">1/16</button>
+          <button class="chip" data-target="stub" data-frac="1/8">1/8</button>
+          <button class="chip" data-target="stub" data-frac="1/4">1/4</button>
+          <button class="chip" data-target="stub" data-frac="1/2">1/2</button>
+          <button class="chip" data-target="stub" data-frac="3/4">3/4</button>
+        </div>
+      </div>
+
+      <div id="offsetHeightSection" style="display:none;">
+        <div class="subsection-label" id="offsetHeightLabel">Altura del obstáculo a librar (pulg)</div>
+        <input type="text" id="offsetHeightInput" inputmode="text" placeholder='Ej. 4 1/2'>
+        <div class="chips" id="offsetFractionChips">
+          <button class="chip" data-target="offset" data-frac="1/16">1/16</button>
+          <button class="chip" data-target="offset" data-frac="1/8">1/8</button>
+          <button class="chip" data-target="offset" data-frac="1/4">1/4</button>
+          <button class="chip" data-target="offset" data-frac="1/2">1/2</button>
+          <button class="chip" data-target="offset" data-frac="3/4">3/4</button>
+        </div>
+
+        <div class="subsection-label" id="angleLabel">Ángulo de doblez</div>
+        <div class="chip-row" id="angleButtons">
+          <button class="unit-btn" data-angle="10">10°</button>
+          <button class="unit-btn" data-angle="22.5">22.5°</button>
+          <button class="unit-btn active" data-angle="30">30°</button>
+          <button class="unit-btn" data-angle="45">45°</button>
+          <button class="unit-btn" data-angle="60">60°</button>
+        </div>
+      </div>
+
+      <div id="saddle3Section" style="display:none;">
+        <div class="subsection-label" id="s3DistLabel">Distancia al centro del obstáculo (pulg)</div>
+        <input type="text" id="s3DistInput" inputmode="text" placeholder="Ej. 24">
+
+        <div class="subsection-label" id="s3HeightLabel">Altura / profundidad del obstáculo (pulg)</div>
+        <input type="text" id="s3HeightInput" inputmode="text" placeholder="Ej. 3">
+        <div class="chips" id="s3FractionChips">
+          <button class="chip" data-target="s3" data-frac="1/16">1/16</button>
+          <button class="chip" data-target="s3" data-frac="1/8">1/8</button>
+          <button class="chip" data-target="s3" data-frac="1/4">1/4</button>
+          <button class="chip" data-target="s3" data-frac="1/2">1/2</button>
+          <button class="chip" data-target="s3" data-frac="3/4">3/4</button>
+        </div>
+
+        <div class="subsection-label" id="s3AngleLabel">Combinación de ángulos</div>
+        <div class="chip-row" id="s3AngleButtons">
+          <button class="unit-btn active" data-center="45" data-outer="22.5">45° / 22.5°</button>
+          <button class="unit-btn" data-center="60" data-outer="30">60° / 30°</button>
+        </div>
+      </div>
+
+      <div id="saddle4Section" style="display:none;">
+        <div class="subsection-label" id="s4DistLabel">Distancia al borde cercano del obstáculo (pulg)</div>
+        <input type="text" id="s4DistInput" inputmode="text" placeholder="Ej. 20">
+
+        <div class="subsection-label" id="s4WidthLabel">Ancho del obstáculo (pulg)</div>
+        <input type="text" id="s4WidthInput" inputmode="text" placeholder="Ej. 8">
+
+        <div class="subsection-label" id="s4HeightLabel">Altura del obstáculo (pulg)</div>
+        <input type="text" id="s4HeightInput" inputmode="text" placeholder="Ej. 4">
+        <div class="chips" id="s4FractionChips">
+          <button class="chip" data-target="s4" data-frac="1/16">1/16</button>
+          <button class="chip" data-target="s4" data-frac="1/8">1/8</button>
+          <button class="chip" data-target="s4" data-frac="1/4">1/4</button>
+          <button class="chip" data-target="s4" data-frac="1/2">1/2</button>
+          <button class="chip" data-target="s4" data-frac="3/4">3/4</button>
+        </div>
+
+        <div class="subsection-label" id="s4AngleLabel">Ángulo de doblez</div>
+        <div class="chip-row" id="s4AngleButtons">
+          <button class="unit-btn" data-angle="10">10°</button>
+          <button class="unit-btn" data-angle="22.5">22.5°</button>
+          <button class="unit-btn active" data-angle="30">30°</button>
+          <button class="unit-btn" data-angle="45">45°</button>
+          <button class="unit-btn" data-angle="60">60°</button>
+        </div>
+      </div>
+
+      <button class="convert-btn key equals" id="calcBendBtn" style="width:100%; margin-top:16px; padding:14px;">Calcular</button>
     </div>
-  </div>
 
-  <div class="ruler-card" id="rulerCard" style="display:none;">
-    <div class="ruler-title">Punto en la cinta de medir</div>
-    <div class="ruler-scroll" id="rulerScroll">
-      <canvas id="rulerCanvas"></canvas>
+    <div class="result" id="bendResultBlock">
+      <div class="stats-row" id="bendStatsRow"></div>
+      <div class="result-warning" id="bendWarning" style="display:none;"></div>
     </div>
+
+    <div class="diagram-card" id="diagramCard" style="display:none;">
+      <div class="diagram-svg-wrap">
+        <!-- STUB DIAGRAM -->
+        <svg id="stubDiagram" class="bend-diagram" viewBox="0 0 600 240" style="display:none;">
+          <line class="dash-ref" x1="20" y1="210" x2="580" y2="210" stroke-width="1"/>
+          <line class="pipe-line" x1="40" y1="200" x2="380" y2="200" stroke-width="11"/>
+          <line class="mark-tick" x1="380" y1="188" x2="380" y2="212" stroke-width="3"/>
+          <text class="mark-text" x="380" y="176" text-anchor="middle" id="stubMarkText">6"</text>
+          <g class="pivot-group" id="stubPivotGroup" style="transform-origin:380px 200px; transform:rotate(0deg);">
+            <line class="pipe-line" x1="380" y1="200" x2="520" y2="200" stroke-width="11"/>
+            <circle cx="520" cy="200" r="6" fill="var(--pipe-dark)"/>
+          </g>
+          <g class="icon-fade" id="stubBenderIcon" transform="translate(380,200)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="stubLevelIcon" transform="translate(420,140)">
+            <rect x="-8" y="-40" width="16" height="80" rx="3" fill="none" stroke="var(--blue)" stroke-width="2"/>
+            <circle cx="0" cy="0" r="5" fill="var(--blue)"/>
+          </g>
+        </svg>
+        <!-- OFFSET DIAGRAM -->
+        <svg id="offsetDiagram" class="bend-diagram" viewBox="0 0 600 240" style="display:none;">
+          <line class="dash-ref" x1="20" y1="190" x2="580" y2="190" stroke-width="1"/>
+          <line class="pipe-line" x1="40" y1="190" x2="220" y2="190" stroke-width="11"/>
+          <line class="mark-tick" x1="220" y1="178" x2="220" y2="202" stroke-width="3"/>
+          <text class="mark-text" x="220" y="166" text-anchor="middle">1</text>
+          <g class="pivot-group" id="offsetPivot1Group" style="transform-origin:220px 190px; transform:rotate(0deg);">
+            <line class="pipe-line" x1="220" y1="190" x2="340" y2="190" stroke-width="11"/>
+            <line class="mark-tick" x1="340" y1="178" x2="340" y2="202" stroke-width="3"/>
+            <text class="mark-text" x="340" y="166" text-anchor="middle">2</text>
+            <g class="pivot-group" id="offsetPivot2Group" style="transform-origin:340px 190px; transform:rotate(0deg);">
+              <line class="pipe-line" x1="340" y1="190" x2="560" y2="190" stroke-width="11"/>
+              <circle cx="560" cy="190" r="6" fill="var(--pipe-dark)"/>
+            </g>
+          </g>
+          <g class="icon-fade" id="offsetBenderIcon1" transform="translate(220,190)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="offsetBenderIcon2" transform="translate(340,190)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <!-- 3-POINT SADDLE DIAGRAM -->
+        <svg id="saddle3Diagram" class="bend-diagram" viewBox="0 0 600 240" style="display:none;">
+          <line class="dash-ref" x1="20" y1="190" x2="580" y2="190" stroke-width="1"/>
+          <line class="pipe-line" x1="30" y1="190" x2="180" y2="190" stroke-width="11"/>
+          <line class="mark-tick" x1="180" y1="178" x2="180" y2="202" stroke-width="3"/>
+          <text class="mark-text" x="180" y="166" text-anchor="middle">1</text>
+          <g class="pivot-group" id="s3PivotAGroup" style="transform-origin:180px 190px; transform:rotate(0deg);">
+            <line class="pipe-line" x1="180" y1="190" x2="300" y2="190" stroke-width="11"/>
+            <line class="mark-tick" x1="300" y1="178" x2="300" y2="202" stroke-width="3"/>
+            <text class="mark-text" x="300" y="166" text-anchor="middle">C</text>
+            <g class="pivot-group" id="s3PivotBGroup" style="transform-origin:300px 190px; transform:rotate(0deg);">
+              <line class="pipe-line" x1="300" y1="190" x2="420" y2="190" stroke-width="11"/>
+              <line class="mark-tick" x1="420" y1="178" x2="420" y2="202" stroke-width="3"/>
+              <text class="mark-text" x="420" y="166" text-anchor="middle">2</text>
+              <g class="pivot-group" id="s3PivotCGroup" style="transform-origin:420px 190px; transform:rotate(0deg);">
+                <line class="pipe-line" x1="420" y1="190" x2="560" y2="190" stroke-width="11"/>
+                <circle cx="560" cy="190" r="6" fill="var(--pipe-dark)"/>
+              </g>
+            </g>
+          </g>
+          <g class="icon-fade" id="s3BenderIconA" transform="translate(180,190)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="s3BenderIconB" transform="translate(300,190)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="s3BenderIconC" transform="translate(420,190)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <!-- 4-POINT SADDLE DIAGRAM -->
+        <svg id="saddle4Diagram" class="bend-diagram" viewBox="0 0 600 240" style="display:none;">
+          <line class="dash-ref" x1="15" y1="200" x2="585" y2="200" stroke-width="1"/>
+          <line class="pipe-line" x1="20" y1="200" x2="130" y2="200" stroke-width="11"/>
+          <line class="mark-tick" x1="130" y1="188" x2="130" y2="212" stroke-width="3"/>
+          <text class="mark-text" x="130" y="176" text-anchor="middle">1</text>
+          <g class="pivot-group" id="s4Pivot1Group" style="transform-origin:130px 200px; transform:rotate(0deg);">
+            <line class="pipe-line" x1="130" y1="200" x2="230" y2="200" stroke-width="11"/>
+            <line class="mark-tick" x1="230" y1="188" x2="230" y2="212" stroke-width="3"/>
+            <text class="mark-text" x="230" y="176" text-anchor="middle">2</text>
+            <g class="pivot-group" id="s4Pivot2Group" style="transform-origin:230px 200px; transform:rotate(0deg);">
+              <line class="pipe-line" x1="230" y1="200" x2="370" y2="200" stroke-width="11"/>
+              <line class="mark-tick" x1="370" y1="188" x2="370" y2="212" stroke-width="3"/>
+              <text class="mark-text" x="370" y="176" text-anchor="middle">3</text>
+              <g class="pivot-group" id="s4Pivot3Group" style="transform-origin:370px 200px; transform:rotate(0deg);">
+                <line class="pipe-line" x1="370" y1="200" x2="470" y2="200" stroke-width="11"/>
+                <line class="mark-tick" x1="470" y1="188" x2="470" y2="212" stroke-width="3"/>
+                <text class="mark-text" x="470" y="176" text-anchor="middle">4</text>
+                <g class="pivot-group" id="s4Pivot4Group" style="transform-origin:470px 200px; transform:rotate(0deg);">
+                  <line class="pipe-line" x1="470" y1="200" x2="580" y2="200" stroke-width="11"/>
+                  <circle cx="580" cy="200" r="6" fill="var(--pipe-dark)"/>
+                </g>
+              </g>
+            </g>
+          </g>
+          <g class="icon-fade" id="s4BenderIcon1" transform="translate(130,200)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="s4BenderIcon2" transform="translate(230,200)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="s4BenderIcon3" transform="translate(370,200)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <g class="icon-fade" id="s4BenderIcon4" transform="translate(470,200)">
+            <rect x="-10" y="-52" width="20" height="42" rx="4" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M -10 -10 L 10 -10" stroke="var(--blue)" stroke-width="2"/>
+            <path d="M 0 -52 L 0 -70" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="step-caption" id="stepCaption"></div>
+      <div class="step-nav">
+        <button class="step-nav-btn" id="stepPrev" type="button">‹ Anterior</button>
+        <div class="step-dots" id="stepDots"></div>
+        <button class="step-nav-btn primary" id="stepNext" type="button">Siguiente ›</button>
+      </div>
+    </div>
+
+    <div class="caveat" id="bendCaveat"></div>
   </div>
 
-  <div class="empty-hint" id="emptyHint">
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 7v4M10 7v3M14 7v4M18 7v3"/></svg>
-    <div>Ingresa una medida arriba para ver<br>el punto exacto en la cinta.</div>
-  </div>
-
-  <footer>PRECISIÓN: 1/16 DE PULGADA</footer>
+  <footer id="footerText">PRECISIÓN: 1/16 DE PULGADA</footer>
 </div>
 
 <script>
-  const valueInput = document.getElementById('valueInput');
-  const unitButtons = document.getElementById('unitButtons');
-  const convertBtn = document.getElementById('convertBtn');
-  const resultBlock = document.getElementById('resultBlock');
-  const resultNumber = document.getElementById('resultNumber');
-  const resultSub = document.getElementById('resultSub');
-  const rulerCard = document.getElementById('rulerCard');
-  const rulerScroll = document.getElementById('rulerScroll');
-  const rulerCanvas = document.getElementById('rulerCanvas');
-  const emptyHint = document.getElementById('emptyHint');
+  /* ============================================================
+     i18n
+  ============================================================ */
+  const translations = {
+    es: {
+      appTitle: 'Cinta', appTitleAccent: 'USA',
+      subtitle: 'Convierte tu medida al punto más cercano en una cinta métrica imperial, redondeada a 1/16".',
+      inputLabel: 'Medida o cálculo',
+      unitCm: 'cm', unitMm: 'mm', unitIn: 'pulgadas',
+      rulerTitle: 'Punto en la cinta de medir',
+      emptyHint: 'Ingresa una medida arriba para ver<br>el punto exacto en la cinta.',
+      footer: 'PRECISIÓN: 1/16 DE PULGADA',
+      invalidExpr: 'Expresión inválida',
+      realLabel: 'reales',
+      roundedLabel: 'redondeado a 1/16"',
+      placeholders: { cm: 'Ej. 6.8 + 3.2', mm: 'Ej. 68 * 2', in: 'Ej. 13 1/4 + 2 1/2' },
+      navConverter: 'Convertidor',
+      navBending: 'Doblez',
+      bending: {
+        bendTypeLabel: 'Tipo de doblez',
+        bendTypeStub: '90° (Stub)',
+        bendTypeOffset: 'Offset',
+        bendTypeSaddle3: 'Saddle 3 puntos',
+        bendTypeSaddle4: 'Saddle 4 puntos',
+        conduitTypeLabel: 'Tipo de tubería',
+        conduitEMT: 'EMT',
+        conduitRigid: 'Rígida / IMC',
+        sizeLabel: 'Diámetro',
+        sizeOther: 'Otro',
+        rigidHintText: 'La rígida/IMC de 1/2" y 3/4" se dobla a mano usando un bender de EMT una talla más grande (bender de 3/4" para rígida de 1/2", bender de 1" para rígida de 3/4"). Por eso la deducción coincide con la del EMT del tamaño siguiente.',
+        customDeductLabel: 'Deducción de tu bender (pulg)',
+        customDeductPlaceholder: 'Ej. 9',
+        customDeductHintEMT: 'Úsalo si tu bender de mano trae una deducción distinta a la estándar (revisa la tabla estampada en el bender).',
+        stubHeightLabel: 'Altura deseada del stub (pulg)',
+        stubHeightPlaceholder: 'Ej. 11 1/4',
+        offsetHeightLabel: 'Altura del obstáculo a librar (pulg)',
+        offsetHeightPlaceholder: 'Ej. 4 1/2',
+        angleLabel: 'Ángulo de doblez',
+        s3DistLabel: 'Distancia al centro del obstáculo (pulg)',
+        s3HeightLabel: 'Altura / profundidad del obstáculo (pulg)',
+        s3AngleLabel: 'Combinación de ángulos',
+        s4DistLabel: 'Distancia al borde cercano del obstáculo (pulg)',
+        s4WidthLabel: 'Ancho del obstáculo (pulg)',
+        s4HeightLabel: 'Altura del obstáculo (pulg)',
+        s4AngleLabel: 'Ángulo de doblez',
+        calcBtn: 'Calcular',
+        markStat: 'Marca desde el extremo',
+        deductStat: 'Deducción usada',
+        heightStat: 'Altura final',
+        distStat: 'Distancia entre marcas',
+        shrinkStat: 'Sumar a la 1a marca',
+        multStat: 'Multiplicador',
+        centerMarkStat: 'Marca central',
+        outerSpacingStat: 'Distancia a marcas exteriores',
+        outerMarksStat: 'Marcas exteriores',
+        mark1Stat: 'Marca 1',
+        mark2Stat: 'Marca 2',
+        mark3Stat: 'Marca 3',
+        mark4Stat: 'Marca 4',
+        totalShrinkStat: 'Encogimiento total',
+        stubWarning: 'La deducción es igual o mayor que la altura deseada. Para stubs cortos, usa el método de "más de 60"": alinea la estrella del bender directamente sobre la altura deseada, sin restar nada.',
+        invalidNumber: 'Ingresa un número o cálculo válido.',
+        needDeduct: 'Ingresa la deducción de tu bender para continuar.',
+        prev: '‹ Anterior',
+        next: 'Siguiente ›',
+        stepOf: 'Paso {n} de {total}',
+        stubSteps: [
+          'Mide y marca tu tubo a <b>{mark}</b> del extremo — ese es tu punto de doblez. La deducción usada es {deduct}.',
+          'Inserta el tubo en el bender y alinea la <b>flecha</b> exactamente sobre tu marca.',
+          'Pisa el tubo, apoya el pie en el bender y aplica presión pareja hasta pasar ligeramente de 90° (compensa el retroceso natural del material).',
+          'Verifica con un nivel que el stub quede a plomo. Resultado: <b>{height}</b> de altura total.'
+        ],
+        offsetSteps: [
+          'Marca los dos puntos de doblez separados por <b>{distance}</b>. Suma <b>{shrink}</b> a tu primera marca para compensar el encogimiento del offset.',
+          'Alinea la flecha del bender en la <b>primera marca</b> y dobla a <b>{angle}°</b> hacia arriba.',
+          'Voltea el tubo, alinea la flecha en la <b>segunda marca</b> y dobla a <b>{angle}°</b> en dirección opuesta — debe quedar paralelo al tramo original.',
+          'Listo: tu offset libra el obstáculo y el tubo vuelve a quedar nivelado, desplazado <b>{height}</b> de altura.'
+        ],
+        saddle3Steps: [
+          'Marca el centro del obstáculo a <b>{center}</b> del extremo (ya incluye el encogimiento). Marca dos puntos más a <b>{spacing}</b> a cada lado de esa marca central.',
+          'Alinea la primera marca exterior con la flecha del bender y dobla a <b>{outer}°</b>.',
+          'Alinea la marca central con la muesca (notch) del bender y dobla a <b>{center_angle}°</b> en dirección opuesta a los dobleces exteriores.',
+          'Alinea la segunda marca exterior y dobla a <b>{outer}°</b>, en espejo con la primera — el tubo debe quedar nivelado a ambos lados de la silla.'
+        ],
+        saddle4Steps: [
+          'Marca los cuatro puntos: <b>{mark1}</b>, <b>{mark2}</b>, <b>{mark3}</b> y <b>{mark4}</b> desde el extremo del tubo (la primera marca ya incluye el encogimiento total).',
+          'Dobla la <b>marca 1</b> a <b>{angle}°</b> hacia arriba — este es el primer doblez del offset de entrada.',
+          'Voltea el tubo y dobla la <b>marca 2</b> a <b>{angle}°</b> en dirección opuesta — el tramo queda plano sobre el obstáculo.',
+          'Dobla la <b>marca 3</b> a <b>{angle}°</b> en la misma dirección que la marca 1 — inicia el descenso del otro lado.',
+          'Voltea de nuevo y dobla la <b>marca 4</b> a <b>{angle}°</b> — el tubo vuelve a quedar nivelado con el tramo original.'
+        ],
+        caveat: 'Esta calculadora cubre únicamente bender de mano: EMT en 1/2", 3/4", 1" y 1-1/4", y rígida/IMC en 1/2" y 3/4" (dobladas con un bender de EMT una talla más grande). No incluye benders mecánicos ni hidráulicos, ya que sus deducciones varían demasiado entre marcas y modelos. El multiplicador, encogimiento y fórmulas de offset y saddle son universales (dependen solo del ángulo, no del bender). Siempre verifica contra la tabla de tu propio bender antes de cortar tubería real.'
+      }
+    },
+    en: {
+      appTitle: 'Tape', appTitleAccent: 'USA',
+      subtitle: 'Convert your measurement to the nearest point on a US imperial tape measure, rounded to 1/16".',
+      inputLabel: 'Measurement or calculation',
+      unitCm: 'cm', unitMm: 'mm', unitIn: 'inches',
+      rulerTitle: 'Point on the tape measure',
+      emptyHint: 'Enter a measurement above to see<br>the exact point on the tape.',
+      footer: 'PRECISION: 1/16 INCH',
+      invalidExpr: 'Invalid expression',
+      realLabel: 'actual',
+      roundedLabel: 'rounded to 1/16"',
+      placeholders: { cm: 'E.g. 6.8 + 3.2', mm: 'E.g. 68 * 2', in: 'E.g. 13 1/4 + 2 1/2' },
+      navConverter: 'Converter',
+      navBending: 'Bending',
+      bending: {
+        bendTypeLabel: 'Bend type',
+        bendTypeStub: '90° (Stub)',
+        bendTypeOffset: 'Offset',
+        bendTypeSaddle3: '3-Point Saddle',
+        bendTypeSaddle4: '4-Point Saddle',
+        conduitTypeLabel: 'Conduit type',
+        conduitEMT: 'EMT',
+        conduitRigid: 'Rigid / IMC',
+        sizeLabel: 'Diameter',
+        sizeOther: 'Other',
+        rigidHintText: '1/2" and 3/4" rigid/IMC is hand-bent using an EMT bender one size larger (a 3/4" bender for 1/2" rigid, a 1" bender for 3/4" rigid). That\'s why the deduct matches the next EMT size up.',
+        customDeductLabel: "Your bender's deduct (in)",
+        customDeductPlaceholder: 'E.g. 9',
+        customDeductHintEMT: "Use this if your hand bender's stamped deduct differs from the standard value.",
+        stubHeightLabel: 'Desired stub height (in)',
+        stubHeightPlaceholder: 'E.g. 11 1/4',
+        offsetHeightLabel: 'Obstruction height to clear (in)',
+        offsetHeightPlaceholder: 'E.g. 4 1/2',
+        angleLabel: 'Bend angle',
+        s3DistLabel: 'Distance to the center of the obstruction (in)',
+        s3HeightLabel: 'Obstruction height / depth (in)',
+        s3AngleLabel: 'Angle combination',
+        s4DistLabel: 'Distance to the near edge of the obstruction (in)',
+        s4WidthLabel: 'Obstruction width (in)',
+        s4HeightLabel: 'Obstruction height (in)',
+        s4AngleLabel: 'Bend angle',
+        calcBtn: 'Calculate',
+        markStat: 'Mark from the end',
+        deductStat: 'Deduct used',
+        heightStat: 'Final height',
+        distStat: 'Distance between marks',
+        shrinkStat: 'Add to 1st mark',
+        multStat: 'Multiplier',
+        centerMarkStat: 'Center mark',
+        outerSpacingStat: 'Spacing to outer marks',
+        outerMarksStat: 'Outer marks',
+        mark1Stat: 'Mark 1',
+        mark2Stat: 'Mark 2',
+        mark3Stat: 'Mark 3',
+        mark4Stat: 'Mark 4',
+        totalShrinkStat: 'Total shrink',
+        stubWarning: 'The deduct is equal to or greater than the desired height. For short stubs, use the "over 60"" method: align the bender\'s star mark directly on the desired height, with no subtraction.',
+        invalidNumber: 'Enter a valid number or calculation.',
+        needDeduct: "Enter your bender's deduct to continue.",
+        prev: '‹ Previous',
+        next: 'Next ›',
+        stepOf: 'Step {n} of {total}',
+        stubSteps: [
+          'Measure and mark your conduit at <b>{mark}</b> from the end — that\'s your bend point. Deduct used: {deduct}.',
+          'Insert the conduit into the bender and align the <b>arrow</b> exactly on your mark.',
+          'Step on the conduit, plant your foot on the bender, and apply steady pressure just past 90° (to compensate for spring-back).',
+          'Check the stub with a level to confirm it\'s plumb. Result: <b>{height}</b> total height.'
+        ],
+        offsetSteps: [
+          'Mark the two bend points <b>{distance}</b> apart. Add <b>{shrink}</b> to your first mark to compensate for offset shrink.',
+          'Align the bender arrow on the <b>first mark</b> and bend <b>{angle}°</b> upward.',
+          'Flip the conduit, align the arrow on the <b>second mark</b>, and bend <b>{angle}°</b> in the opposite direction — it should end up parallel to the original run.',
+          'Done: your offset clears the obstruction and the conduit is level again, shifted <b>{height}</b> in height.'
+        ],
+        saddle3Steps: [
+          'Mark the center of the obstruction at <b>{center}</b> from the end (shrink already included). Mark two more points <b>{spacing}</b> on each side of that center mark.',
+          'Align the first outer mark with the bender arrow and bend <b>{outer}°</b>.',
+          'Align the center mark with the bender\'s notch and bend <b>{center_angle}°</b> in the opposite direction from the outer bends.',
+          'Align the second outer mark and bend <b>{outer}°</b>, mirroring the first — the conduit should sit level on both sides of the saddle.'
+        ],
+        saddle4Steps: [
+          'Mark all four points: <b>{mark1}</b>, <b>{mark2}</b>, <b>{mark3}</b>, and <b>{mark4}</b> from the end of the conduit (the first mark already includes the total shrink).',
+          'Bend <b>mark 1</b> to <b>{angle}°</b> upward — the first bend of the entry offset.',
+          'Flip the conduit and bend <b>mark 2</b> to <b>{angle}°</b> in the opposite direction — the run is now flat over the obstruction.',
+          'Bend <b>mark 3</b> to <b>{angle}°</b> in the same direction as mark 1 — starts the descent on the other side.',
+          'Flip again and bend <b>mark 4</b> to <b>{angle}°</b> — the conduit is level with the original run again.'
+        ],
+        caveat: 'This calculator covers hand benders only: EMT in 1/2", 3/4", 1", and 1-1/4", and rigid/IMC in 1/2" and 3/4" (bent using an EMT bender one size larger). It does not include mechanical or hydraulic benders, since their deduct values vary too much between brands and models. The offset/saddle multiplier, shrink, and formulas are universal (they depend only on the angle, not the bender). Always double-check against your own bender\'s chart before cutting real conduit.'
+      }
+    }
+  };
 
+  let currentLang = 'es';
   let currentUnit = 'cm';
 
-  unitButtons.addEventListener('click', (e) => {
-    const btn = e.target.closest('.unit-btn');
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    document.documentElement.lang = lang;
+    document.getElementById('appTitle').innerHTML = t.appTitle + ' <span>' + t.appTitleAccent + '</span>';
+    document.getElementById('appSubtitle').textContent = t.subtitle;
+    document.getElementById('inputLabel').textContent = t.inputLabel;
+    document.querySelector('#unitButtons [data-unit="cm"]').textContent = t.unitCm;
+    document.querySelector('#unitButtons [data-unit="mm"]').textContent = t.unitMm;
+    document.getElementById('unitInLabel').textContent = t.unitIn;
+    document.getElementById('rulerTitle').textContent = t.rulerTitle;
+    document.getElementById('emptyHintText').innerHTML = t.emptyHint;
+    document.getElementById('footerText').textContent = t.footer;
+    valueInput.placeholder = t.placeholders[currentUnit];
+    document.getElementById('tabConverter').textContent = t.navConverter;
+    document.getElementById('tabBending').textContent = t.navBending;
+
+    const b = t.bending;
+    document.getElementById('bendTypeLabel').textContent = b.bendTypeLabel;
+    document.getElementById('bendTypeStubBtn').textContent = b.bendTypeStub;
+    document.getElementById('bendTypeOffsetBtn').textContent = b.bendTypeOffset;
+    document.getElementById('bendTypeSaddle3Btn').textContent = b.bendTypeSaddle3;
+    document.getElementById('bendTypeSaddle4Btn').textContent = b.bendTypeSaddle4;
+    document.getElementById('conduitTypeLabel').textContent = b.conduitTypeLabel;
+    document.querySelector('#conduitTypeButtons [data-conduit="emt"]').textContent = b.conduitEMT;
+    document.getElementById('conduitRigidBtn').textContent = b.conduitRigid;
+    document.getElementById('sizeLabel').textContent = b.sizeLabel;
+    document.getElementById('customDeductLabel').textContent = b.customDeductLabel;
+    customDeductInput.placeholder = b.customDeductPlaceholder;
+    document.getElementById('stubHeightLabel').textContent = b.stubHeightLabel;
+    stubHeightInput.placeholder = b.stubHeightPlaceholder;
+    document.getElementById('offsetHeightLabel').textContent = b.offsetHeightLabel;
+    offsetHeightInput.placeholder = b.offsetHeightPlaceholder;
+    document.getElementById('angleLabel').textContent = b.angleLabel;
+    document.getElementById('s3DistLabel').textContent = b.s3DistLabel;
+    document.getElementById('s3HeightLabel').textContent = b.s3HeightLabel;
+    document.getElementById('s3AngleLabel').textContent = b.s3AngleLabel;
+    document.getElementById('s4DistLabel').textContent = b.s4DistLabel;
+    document.getElementById('s4WidthLabel').textContent = b.s4WidthLabel;
+    document.getElementById('s4HeightLabel').textContent = b.s4HeightLabel;
+    document.getElementById('s4AngleLabel').textContent = b.s4AngleLabel;
+    document.getElementById('calcBendBtn').textContent = b.calcBtn;
+    document.getElementById('stepPrev').textContent = b.prev;
+    document.getElementById('stepNext').textContent = b.next;
+    document.getElementById('bendCaveat').textContent = b.caveat;
+    if (typeof renderSizeButtons === 'function') renderSizeButtons();
+    updateDeductHint();
+
+    document.querySelectorAll('.lang-toggle button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+
+    if (lastBendResult) renderBendResult();
+
+    try { localStorage.setItem('cinta-usa-lang', lang); } catch (e) {}
+  }
+
+  document.getElementById('langToggle').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
     if (!btn) return;
-    document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentUnit = btn.dataset.unit;
-    valueInput.placeholder = currentUnit === 'in' ? 'Ej. 13 1/4 + 2 1/2' : (currentUnit === 'mm' ? 'Ej. 68 * 2' : 'Ej. 6.8 + 3.2');
+    applyLanguage(btn.dataset.lang);
   });
 
-  // Convierte números mixtos como "13 1/4" en "(13+1/4)" para que el
-  // evaluador los sume correctamente en vez de interpretarlos como error.
+  /* ============================================================
+     theme
+  ============================================================ */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeIconSun').style.display = theme === 'light' ? 'block' : 'none';
+    document.getElementById('themeIconMoon').style.display = theme === 'dark' ? 'block' : 'none';
+    try { localStorage.setItem('cinta-usa-theme', theme); } catch (e) {}
+    if (lastConvertedInches !== null) drawRuler(lastConvertedInches);
+  }
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  /* ============================================================
+     main tab switching
+  ============================================================ */
+  document.querySelectorAll('.main-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('viewConverter').classList.toggle('active', tab.dataset.view === 'converter');
+      document.getElementById('viewBending').classList.toggle('active', tab.dataset.view === 'bending');
+    });
+  });
+
+  /* ============================================================
+     shared math helpers
+  ============================================================ */
   function preprocessFractions(expr) {
     return expr.replace(/(\d+(?:\.\d+)?)\s+(\d+\/\d+)/g, '($1+$2)');
   }
 
-  // Evalúa expresiones matemáticas simples: + - * / ( ) y fracciones como 1/2,
-  // incluyendo números mixtos como "13 1/4". Solo se permiten dígitos, puntos,
-  // espacios y los operadores básicos: nada de letras ni acceso a otras
-  // funciones, así que es seguro correrlo en el navegador.
   function evaluateExpression(raw) {
     let cleaned = raw.replace(/,/g, '.').trim();
-    if (cleaned === '') throw new Error('vacío');
-    if (!/^[0-9+\-*/().\s]+$/.test(cleaned)) throw new Error('caracteres no permitidos');
+    if (cleaned === '') throw new Error('empty');
+    if (!/^[0-9+\-*/().\s]+$/.test(cleaned)) throw new Error('bad chars');
     cleaned = preprocessFractions(cleaned);
-    if (/[+\-*/.]{2,}/.test(cleaned.replace(/\s/g, ''))) {
-      // permite cosas como "2 + -3" pero bloquea "2 ++ 3" salvo el caso de doble signo válido
-      if (!/^[0-9.\s()+\-*/]*$/.test(cleaned)) throw new Error('expresión inválida');
-    }
     // eslint-disable-next-line no-new-func
     const result = Function('"use strict"; return (' + cleaned + ')')();
-    if (typeof result !== 'number' || !isFinite(result)) throw new Error('resultado inválido');
+    if (typeof result !== 'number' || !isFinite(result)) throw new Error('bad result');
     return result;
-  }
-
-  function toInches(value, unit) {
-    if (unit === 'cm') return value / 2.54;
-    if (unit === 'mm') return value / 25.4;
-    return value;
   }
 
   function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
 
-  function formatResult(inches) {
-    const totalSixteenths = Math.round(inches * 16);
+  function formatInches(inches) {
+    const negative = inches < 0;
+    const abs = Math.abs(inches);
+    const totalSixteenths = Math.round(abs * 16);
     const wholeInches = Math.floor(totalSixteenths / 16);
     let remainder = totalSixteenths % 16;
 
@@ -330,34 +1031,112 @@
       fracStr = (remainder / divisor) + '/' + (16 / divisor);
     }
 
+    let headline;
+    if (wholeInches === 0 && remainder === 0) headline = '0"';
+    else if (remainder === 0) headline = wholeInches + '"';
+    else if (wholeInches === 0) headline = fracStr + '"';
+    else headline = wholeInches + ' ' + fracStr + '"';
+
+    return (negative ? '-' : '') + headline;
+  }
+
+  function formatResultFull(inches) {
+    const totalSixteenths = Math.round(inches * 16);
+    const wholeInches = Math.floor(totalSixteenths / 16);
+    let remainder = totalSixteenths % 16;
+    let fracStr = '';
+    if (remainder > 0) {
+      const divisor = gcd(remainder, 16);
+      fracStr = (remainder / divisor) + '/' + (16 / divisor);
+    }
     const feet = Math.floor(wholeInches / 12);
     const inchesLeft = wholeInches % 12;
-
     let headline;
-    if (wholeInches === 0 && remainder === 0) {
-      headline = '0"';
-    } else if (remainder === 0) {
-      headline = wholeInches + '"';
-    } else if (wholeInches === 0) {
-      headline = fracStr + '"';
-    } else {
-      headline = wholeInches + ' ' + fracStr + '"';
-    }
-
+    if (wholeInches === 0 && remainder === 0) headline = '0"';
+    else if (remainder === 0) headline = wholeInches + '"';
+    else if (wholeInches === 0) headline = fracStr + '"';
+    else headline = wholeInches + ' ' + fracStr + '"';
     let feetStr = null;
     if (feet > 0) {
       let inchPart = inchesLeft === 0 && remainder === 0 ? '0"' :
         (inchesLeft === 0 ? fracStr + '"' : (remainder === 0 ? inchesLeft + '"' : inchesLeft + ' ' + fracStr + '"'));
-      feetStr = feet + " ft " + inchPart;
+      feetStr = feet + ' ft ' + inchPart;
     }
+    return { headline, feetStr };
+  }
 
-    return {
-      headline,
-      feetStr,
-      totalSixteenths,
-      wholeInches,
-      remainder
-    };
+  /* ============================================================
+     CONVERTER (tape) logic
+  ============================================================ */
+  const valueInput = document.getElementById('valueInput');
+  const unitButtons = document.getElementById('unitButtons');
+  const resultBlock = document.getElementById('resultBlock');
+  const resultNumber = document.getElementById('resultNumber');
+  const resultSub = document.getElementById('resultSub');
+  const rulerCard = document.getElementById('rulerCard');
+  const rulerScroll = document.getElementById('rulerScroll');
+  const rulerCanvas = document.getElementById('rulerCanvas');
+  const emptyHint = document.getElementById('emptyHint');
+  const keypad = document.getElementById('keypad');
+  const fractionChips = document.getElementById('fractionChips');
+
+  let lastConvertedInches = null;
+
+  unitButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#unitButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentUnit = btn.dataset.unit;
+    valueInput.placeholder = translations[currentLang].placeholders[currentUnit];
+  });
+
+  fractionChips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    insertFractionInto(valueInput, chip.dataset.frac);
+  });
+
+  function insertFractionInto(input, frac) {
+    const v = input.value;
+    if (v.length && /[0-9]$/.test(v.trim())) {
+      input.value = v.replace(/\s*$/, '') + ' ' + frac;
+    } else {
+      input.value = v + frac;
+    }
+    input.focus();
+  }
+
+  keypad.addEventListener('click', (e) => {
+    const key = e.target.closest('.key');
+    if (!key) return;
+    if (key.dataset.action === 'clear') {
+      valueInput.value = '';
+      resultBlock.classList.remove('show');
+      rulerCard.style.display = 'none';
+      emptyHint.style.display = 'block';
+      valueInput.style.borderColor = '';
+      return;
+    }
+    if (key.dataset.action === 'back') {
+      valueInput.value = valueInput.value.slice(0, -1);
+      return;
+    }
+    if (key.dataset.action === 'equals') {
+      handleConvert();
+      return;
+    }
+    valueInput.value += key.dataset.val;
+  });
+
+  function toInches(value, unit) {
+    if (unit === 'cm') return value / 2.54;
+    if (unit === 'mm') return value / 25.4;
+    return value;
+  }
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   }
 
   function drawRuler(targetInches) {
@@ -372,19 +1151,22 @@
     rulerCanvas.style.width = width + 'px';
     rulerCanvas.style.height = height + 'px';
     const ctx = rulerCanvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
-    // background
-    ctx.fillStyle = '#EDE6D3';
+    const tapeBg = cssVar('--tape-bg') || '#F4F1E4';
+    const tapeInk = cssVar('--tape-ink') || '#26241C';
+    const markerColor = cssVar('--red') || '#D8392C';
+
+    ctx.fillStyle = tapeBg;
     ctx.fillRect(0, 0, width, height);
 
     const baseY = 92;
     const originX = 10;
-
-    // ticks every 1/16"
     const totalSixteenths = maxInches * 16;
-    ctx.strokeStyle = '#2A2620';
-    ctx.fillStyle = '#2A2620';
+
+    ctx.strokeStyle = tapeInk;
+    ctx.fillStyle = tapeInk;
     ctx.font = '600 15px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
 
@@ -403,29 +1185,24 @@
       ctx.lineTo(x, baseY - tickH);
       ctx.stroke();
 
-      if (i % 16 === 0) {
-        ctx.fillText(String(i / 16), x, baseY - tickH - 8);
-      }
+      if (i % 16 === 0) ctx.fillText(String(i / 16), x, baseY - tickH - 8);
     }
 
-    // baseline
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(originX, baseY);
     ctx.lineTo(originX + maxInches * PPI, baseY);
     ctx.stroke();
 
-    // marker
     const markerX = originX + targetInches * PPI;
-    ctx.strokeStyle = '#E8543E';
+    ctx.strokeStyle = markerColor;
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(markerX, 14);
     ctx.lineTo(markerX, baseY + 6);
     ctx.stroke();
 
-    // marker triangle
-    ctx.fillStyle = '#E8543E';
+    ctx.fillStyle = markerColor;
     ctx.beginPath();
     ctx.moveTo(markerX - 6, 14);
     ctx.lineTo(markerX + 6, 14);
@@ -433,56 +1210,491 @@
     ctx.closePath();
     ctx.fill();
 
-    return { width, markerX };
+    return { markerX };
   }
 
   function handleConvert() {
     const raw = valueInput.value;
+    const t = translations[currentLang];
     let value;
     try {
       value = evaluateExpression(raw);
     } catch (err) {
-      valueInput.style.borderColor = '#E8543E';
+      valueInput.style.borderColor = 'var(--red)';
       resultSub.textContent = '';
-      resultNumber.textContent = 'Expresión inválida';
+      resultNumber.textContent = t.invalidExpr;
       resultBlock.classList.add('show');
       rulerCard.style.display = 'none';
       emptyHint.style.display = 'none';
       return;
     }
     if (value < 0) {
-      valueInput.style.borderColor = '#E8543E';
+      valueInput.style.borderColor = 'var(--red)';
       return;
     }
     valueInput.style.borderColor = '';
 
     const realInches = toInches(value, currentUnit);
     const roundedInches = Math.round(realInches * 16) / 16;
-    const r = formatResult(roundedInches);
+    lastConvertedInches = roundedInches;
+    const r = formatResultFull(roundedInches);
 
     resultNumber.textContent = r.feetStr ? r.headline + '  (' + r.feetStr + ')' : r.headline;
 
-    const unitLabel = currentUnit === 'cm' ? 'cm' : (currentUnit === 'mm' ? 'mm' : 'in');
+    const unitLabel = t['unit' + currentUnit.charAt(0).toUpperCase() + currentUnit.slice(1)];
     const exprTrimmed = raw.trim();
     const showsOperation = /[+\-*/]/.test(exprTrimmed.replace(/^-/, ''));
     const opText = showsOperation ? (exprTrimmed + ' = ' + (Math.round(value * 1000) / 1000) + ' ' + unitLabel + ' → ') : '';
-    resultSub.textContent = opText + realInches.toFixed(3) + '" reales → redondeado a 1/16"';
+    resultSub.textContent = opText + realInches.toFixed(3) + '" ' + t.realLabel + ' → ' + t.roundedLabel;
 
     resultBlock.classList.add('show');
     rulerCard.style.display = 'block';
     emptyHint.style.display = 'none';
 
-    const { width, markerX } = drawRuler(roundedInches);
+    const { markerX } = drawRuler(roundedInches);
     requestAnimationFrame(() => {
       const scrollWidth = rulerScroll.clientWidth;
       rulerScroll.scrollLeft = Math.max(0, markerX - scrollWidth / 2);
     });
   }
 
-  convertBtn.addEventListener('click', handleConvert);
   valueInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleConvert();
   });
+
+  /* ============================================================
+     BENDING logic
+  ============================================================ */
+  const deductTableEMT = { '0.5': 5, '0.75': 6, '1': 8, '1.25': 11 };
+  // Rígida/IMC 1/2" y 3/4" se doblan a mano con un bender de EMT una talla más grande.
+  const deductTableRigid = { '0.5': 6, '0.75': 8 }; // usa bender EMT 3/4" y 1" respectivamente
+  const angleData = {
+    10:   { mult: 6.0, shrink: 1/16  },
+    22.5: { mult: 2.6, shrink: 3/16  },
+    30:   { mult: 2.0, shrink: 1/4   },
+    45:   { mult: 1.4, shrink: 3/8   },
+    60:   { mult: 1.2, shrink: 1/2   }
+  };
+
+  let bendType = 'stub';
+  let conduitType = 'emt';
+  let selectedSize = '0.5';
+  let selectedAngle = 30;
+  let s3Center = 45, s3Outer = 22.5;
+  let s4Angle = 30;
+  let currentStep = 0;
+  let lastBendResult = null; // { type, ...values }
+
+  const bendTypeButtons = document.getElementById('bendTypeButtons');
+  const conduitTypeSection = document.getElementById('conduitTypeSection');
+  const conduitTypeButtons = document.getElementById('conduitTypeButtons');
+  const sizeSection = document.getElementById('sizeSection');
+  const sizeButtons = document.getElementById('sizeButtons');
+  const customDeductSection = document.getElementById('customDeductSection');
+  const customDeductInput = document.getElementById('customDeductInput');
+  const customDeductHint = document.getElementById('customDeductHint');
+  const stubHeightSection = document.getElementById('stubHeightSection');
+  const stubHeightInput = document.getElementById('stubHeightInput');
+  const offsetHeightSection = document.getElementById('offsetHeightSection');
+  const offsetHeightInput = document.getElementById('offsetHeightInput');
+  const angleButtons = document.getElementById('angleButtons');
+  const saddle3Section = document.getElementById('saddle3Section');
+  const s3DistInput = document.getElementById('s3DistInput');
+  const s3HeightInput = document.getElementById('s3HeightInput');
+  const s3AngleButtons = document.getElementById('s3AngleButtons');
+  const saddle4Section = document.getElementById('saddle4Section');
+  const s4DistInput = document.getElementById('s4DistInput');
+  const s4WidthInput = document.getElementById('s4WidthInput');
+  const s4HeightInput = document.getElementById('s4HeightInput');
+  const s4AngleButtons = document.getElementById('s4AngleButtons');
+  const calcBendBtn = document.getElementById('calcBendBtn');
+  const bendResultBlock = document.getElementById('bendResultBlock');
+  const bendStatsRow = document.getElementById('bendStatsRow');
+  const bendWarning = document.getElementById('bendWarning');
+  const diagramCard = document.getElementById('diagramCard');
+  const stubDiagram = document.getElementById('stubDiagram');
+  const offsetDiagram = document.getElementById('offsetDiagram');
+  const saddle3Diagram = document.getElementById('saddle3Diagram');
+  const saddle4Diagram = document.getElementById('saddle4Diagram');
+  const stepCaption = document.getElementById('stepCaption');
+  const stepDots = document.getElementById('stepDots');
+  const stepPrev = document.getElementById('stepPrev');
+  const stepNext = document.getElementById('stepNext');
+
+  const rigidHint = document.getElementById('rigidHint');
+
+  document.querySelectorAll('#stubFractionChips .chip, #offsetFractionChips .chip, #s3FractionChips .chip, #s4FractionChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const targetMap = { stub: stubHeightInput, offset: offsetHeightInput, s3: s3HeightInput, s4: s4HeightInput };
+      insertFractionInto(targetMap[chip.dataset.target], chip.dataset.frac);
+    });
+  });
+
+  const ALL_BEND_SECTIONS = [stubHeightSection, offsetHeightSection, saddle3Section, saddle4Section];
+
+  bendTypeButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#bendTypeButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    bendType = btn.dataset.bend;
+    ALL_BEND_SECTIONS.forEach(s => s.style.display = 'none');
+    conduitTypeSection.style.display = bendType === 'stub' ? 'block' : 'none';
+    if (bendType === 'stub') stubHeightSection.style.display = 'block';
+    else if (bendType === 'offset') offsetHeightSection.style.display = 'block';
+    else if (bendType === 'saddle3') saddle3Section.style.display = 'block';
+    else if (bendType === 'saddle4') saddle4Section.style.display = 'block';
+    hideBendResults();
+  });
+
+  s3AngleButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#s3AngleButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    s3Center = parseFloat(btn.dataset.center);
+    s3Outer = parseFloat(btn.dataset.outer);
+    hideBendResults();
+  });
+
+  s4AngleButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#s4AngleButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    s4Angle = parseFloat(btn.dataset.angle);
+    hideBendResults();
+  });
+
+  const SIZE_LABELS = { '0.5': '1/2"', '0.75': '3/4"', '1': '1"', '1.25': '1-1/4"' };
+
+  function renderSizeButtons() {
+    const b = translations[currentLang].bending;
+    sizeButtons.innerHTML = '';
+    let sizes;
+    if (conduitType === 'rigid') {
+      sizes = ['0.5', '0.75'];
+      if (!sizes.includes(selectedSize)) selectedSize = '0.5';
+      rigidHint.textContent = b.rigidHintText;
+      rigidHint.style.display = 'block';
+      customDeductSection.style.display = 'none';
+    } else {
+      sizes = ['0.5', '0.75', '1', '1.25'];
+      rigidHint.style.display = 'none';
+      customDeductSection.style.display = selectedSize === 'other' ? 'block' : 'none';
+    }
+    sizes.forEach(size => {
+      const btn = document.createElement('button');
+      btn.className = 'unit-btn' + (size === selectedSize ? ' active' : '');
+      btn.dataset.size = size;
+      btn.textContent = SIZE_LABELS[size];
+      sizeButtons.appendChild(btn);
+    });
+    if (conduitType === 'emt') {
+      const otherBtn = document.createElement('button');
+      otherBtn.className = 'unit-btn' + (selectedSize === 'other' ? ' active' : '');
+      otherBtn.dataset.size = 'other';
+      otherBtn.textContent = b.sizeOther;
+      sizeButtons.appendChild(otherBtn);
+    }
+  }
+
+  conduitTypeButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#conduitTypeButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    conduitType = btn.dataset.conduit;
+    renderSizeButtons();
+    updateDeductHint();
+    hideBendResults();
+  });
+
+  sizeButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#sizeButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSize = btn.dataset.size;
+    customDeductSection.style.display = (conduitType === 'emt' && selectedSize === 'other') ? 'block' : 'none';
+    hideBendResults();
+  });
+
+  angleButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.unit-btn');
+    if (!btn) return;
+    document.querySelectorAll('#angleButtons .unit-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedAngle = parseFloat(btn.dataset.angle);
+    hideBendResults();
+  });
+
+  function updateDeductHint() {
+    const b = translations[currentLang].bending;
+    customDeductHint.textContent = b.customDeductHintEMT;
+  }
+
+  function hideBendResults() {
+    bendResultBlock.classList.remove('show');
+    diagramCard.style.display = 'none';
+    lastBendResult = null;
+  }
+
+  function getDeduct() {
+    if (conduitType === 'emt' && selectedSize !== 'other') {
+      return deductTableEMT[selectedSize];
+    }
+    if (conduitType === 'rigid') {
+      return deductTableRigid[selectedSize];
+    }
+    const v = parseFloat(customDeductInput.value.replace(',', '.'));
+    return isNaN(v) ? null : v;
+  }
+
+  calcBendBtn.addEventListener('click', () => {
+    const b = translations[currentLang].bending;
+
+    if (bendType === 'stub') {
+      const deduct = getDeduct();
+      if (deduct === null) { alert(b.needDeduct); return; }
+      let height;
+      try { height = evaluateExpression(stubHeightInput.value); }
+      catch (e) { alert(b.invalidNumber); return; }
+      const mark = height - deduct;
+      lastBendResult = { type: 'stub', height, deduct, mark };
+
+    } else if (bendType === 'offset') {
+      let height;
+      try { height = evaluateExpression(offsetHeightInput.value); }
+      catch (e) { alert(b.invalidNumber); return; }
+      const data = angleData[selectedAngle];
+      const distance = height * data.mult;
+      const shrink = height * data.shrink;
+      lastBendResult = { type: 'offset', height, angle: selectedAngle, distance, shrink, mult: data.mult };
+
+    } else if (bendType === 'saddle3') {
+      let dist, depth;
+      try {
+        dist = evaluateExpression(s3DistInput.value);
+        depth = evaluateExpression(s3HeightInput.value);
+      } catch (e) { alert(b.invalidNumber); return; }
+      const outerData = angleData[s3Outer];
+      const spacing = depth * outerData.mult;
+      const shrink = depth * outerData.shrink;
+      const centerMark = dist + shrink;
+      const outerMark1 = centerMark - spacing;
+      const outerMark2 = centerMark + spacing;
+      lastBendResult = { type: 'saddle3', dist, depth, center: s3Center, outer: s3Outer, spacing, shrink, centerMark, outerMark1, outerMark2 };
+
+    } else if (bendType === 'saddle4') {
+      let dist, width, depth;
+      try {
+        dist = evaluateExpression(s4DistInput.value);
+        width = evaluateExpression(s4WidthInput.value);
+        depth = evaluateExpression(s4HeightInput.value);
+      } catch (e) { alert(b.invalidNumber); return; }
+      const data = angleData[s4Angle];
+      const spacing = depth * data.mult;
+      const totalShrink = 2 * depth * data.shrink;
+      const mark1 = (dist - spacing) + totalShrink;
+      const mark2 = mark1 + spacing;
+      const mark3 = mark2 + width;
+      const mark4 = mark3 + spacing;
+      lastBendResult = { type: 'saddle4', dist, width, depth, angle: s4Angle, spacing, totalShrink, mark1, mark2, mark3, mark4 };
+    }
+
+    currentStep = 0;
+    renderBendResult();
+  });
+
+  function renderBendResult() {
+    if (!lastBendResult) return;
+    const b = translations[currentLang].bending;
+    bendStatsRow.innerHTML = '';
+    bendWarning.style.display = 'none';
+
+    if (lastBendResult.type === 'stub') {
+      const { mark, deduct, height } = lastBendResult;
+      const markPositive = mark > 0;
+      addStat(formatInches(Math.abs(mark)), b.markStat);
+      addStat(formatInches(deduct), b.deductStat);
+      addStat(formatResultFull(height).headline, b.heightStat);
+      if (!markPositive) {
+        bendWarning.textContent = b.stubWarning;
+        bendWarning.style.display = 'block';
+      }
+      showDiagram('stub');
+
+    } else if (lastBendResult.type === 'offset') {
+      const { distance, shrink, angle } = lastBendResult;
+      addStat(formatInches(distance), b.distStat);
+      addStat('+' + formatInches(shrink), b.shrinkStat);
+      addStat(angleData[angle].mult + 'x', b.multStat);
+      showDiagram('offset');
+
+    } else if (lastBendResult.type === 'saddle3') {
+      const { centerMark, spacing, outerMark1, outerMark2 } = lastBendResult;
+      addStat(formatInches(centerMark), b.centerMarkStat);
+      addStat(formatInches(spacing), b.outerSpacingStat);
+      addStat(formatInches(outerMark1) + ' / ' + formatInches(outerMark2), b.outerMarksStat);
+      showDiagram('saddle3');
+
+    } else if (lastBendResult.type === 'saddle4') {
+      const { mark1, mark2, mark3, mark4 } = lastBendResult;
+      addStat(formatInches(mark1), b.mark1Stat);
+      addStat(formatInches(mark2), b.mark2Stat);
+      addStat(formatInches(mark3), b.mark3Stat);
+      addStat(formatInches(mark4), b.mark4Stat);
+      showDiagram('saddle4');
+    }
+
+    bendResultBlock.classList.add('show');
+    diagramCard.style.display = 'block';
+    renderStep();
+  }
+
+  function addStat(value, label) {
+    const box = document.createElement('div');
+    box.className = 'stat-box';
+    box.innerHTML = '<div class="stat-value">' + value + '</div><div class="stat-label">' + label + '</div>';
+    bendStatsRow.appendChild(box);
+  }
+
+  const ALL_DIAGRAMS = { stub: stubDiagram, offset: offsetDiagram, saddle3: saddle3Diagram, saddle4: saddle4Diagram };
+
+  function showDiagram(kind) {
+    Object.keys(ALL_DIAGRAMS).forEach(k => { ALL_DIAGRAMS[k].style.display = (k === kind) ? 'block' : 'none'; });
+    if (kind === 'stub') {
+      document.getElementById('stubMarkText').textContent = formatInches(Math.abs(lastBendResult.mark));
+    }
+  }
+
+  function getSteps() {
+    const b = translations[currentLang].bending;
+    if (lastBendResult.type === 'stub') return b.stubSteps;
+    if (lastBendResult.type === 'offset') return b.offsetSteps;
+    if (lastBendResult.type === 'saddle3') return b.saddle3Steps;
+    if (lastBendResult.type === 'saddle4') return b.saddle4Steps;
+    return [];
+  }
+
+  function renderStep() {
+    if (!lastBendResult) return;
+    const b = translations[currentLang].bending;
+    const steps = getSteps();
+    const total = steps.length;
+
+    let text = steps[currentStep];
+    const r = lastBendResult;
+    if (r.type === 'stub') {
+      text = text.replace('{mark}', formatInches(Math.abs(r.mark)))
+                  .replace('{deduct}', formatInches(r.deduct))
+                  .replace('{height}', formatResultFull(r.height).headline);
+    } else if (r.type === 'offset') {
+      text = text.replace(/\{distance\}/g, formatInches(r.distance))
+                  .replace('{shrink}', formatInches(r.shrink))
+                  .replace(/\{angle\}/g, r.angle)
+                  .replace('{height}', formatResultFull(r.height).headline);
+    } else if (r.type === 'saddle3') {
+      text = text.replace('{center}', formatInches(r.centerMark))
+                  .replace('{spacing}', formatInches(r.spacing))
+                  .replace(/\{outer\}/g, r.outer)
+                  .replace('{center_angle}', r.center);
+    } else if (r.type === 'saddle4') {
+      text = text.replace('{mark1}', formatInches(r.mark1))
+                  .replace('{mark2}', formatInches(r.mark2))
+                  .replace('{mark3}', formatInches(r.mark3))
+                  .replace('{mark4}', formatInches(r.mark4))
+                  .replace(/\{angle\}/g, r.angle);
+    }
+    stepCaption.innerHTML = text;
+
+    stepDots.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'step-dot' + (i === currentStep ? ' active' : '');
+      stepDots.appendChild(dot);
+    }
+    stepPrev.disabled = currentStep === 0;
+    stepNext.textContent = currentStep === total - 1 ? '✓' : b.next;
+    stepNext.disabled = false;
+
+    applyDiagramStep();
+  }
+
+  function applyDiagramStep() {
+    if (!lastBendResult) return;
+    const r = lastBendResult;
+
+    if (r.type === 'stub') {
+      const pivotGroup = document.getElementById('stubPivotGroup');
+      const bender = document.getElementById('stubBenderIcon');
+      const level = document.getElementById('stubLevelIcon');
+      pivotGroup.style.transform = currentStep >= 2 ? 'rotate(-90deg)' : 'rotate(0deg)';
+      bender.style.opacity = (currentStep === 1 || currentStep === 2) ? '1' : '0';
+      level.style.opacity = currentStep === 3 ? '1' : '0';
+
+    } else if (r.type === 'offset') {
+      const angle = r.angle;
+      const p1 = document.getElementById('offsetPivot1Group');
+      const p2 = document.getElementById('offsetPivot2Group');
+      document.getElementById('offsetBenderIcon1').style.opacity = currentStep === 1 ? '1' : '0';
+      document.getElementById('offsetBenderIcon2').style.opacity = currentStep === 2 ? '1' : '0';
+      p1.style.transform = currentStep >= 1 ? 'rotate(-' + angle + 'deg)' : 'rotate(0deg)';
+      p2.style.transform = currentStep >= 2 ? 'rotate(' + angle + 'deg)' : 'rotate(0deg)';
+
+    } else if (r.type === 'saddle3') {
+      const outer = r.outer, center = r.center;
+      const pA = document.getElementById('s3PivotAGroup');
+      const pB = document.getElementById('s3PivotBGroup');
+      const pC = document.getElementById('s3PivotCGroup');
+      document.getElementById('s3BenderIconA').style.opacity = currentStep === 1 ? '1' : '0';
+      document.getElementById('s3BenderIconB').style.opacity = currentStep === 2 ? '1' : '0';
+      document.getElementById('s3BenderIconC').style.opacity = currentStep === 3 ? '1' : '0';
+      pA.style.transform = currentStep >= 1 ? 'rotate(-' + outer + 'deg)' : 'rotate(0deg)';
+      pB.style.transform = currentStep >= 2 ? 'rotate(' + center + 'deg)' : 'rotate(0deg)';
+      pC.style.transform = currentStep >= 3 ? 'rotate(-' + outer + 'deg)' : 'rotate(0deg)';
+
+    } else if (r.type === 'saddle4') {
+      const angle = r.angle;
+      const p1 = document.getElementById('s4Pivot1Group');
+      const p2 = document.getElementById('s4Pivot2Group');
+      const p3 = document.getElementById('s4Pivot3Group');
+      const p4 = document.getElementById('s4Pivot4Group');
+      document.getElementById('s4BenderIcon1').style.opacity = currentStep === 1 ? '1' : '0';
+      document.getElementById('s4BenderIcon2').style.opacity = currentStep === 2 ? '1' : '0';
+      document.getElementById('s4BenderIcon3').style.opacity = currentStep === 3 ? '1' : '0';
+      document.getElementById('s4BenderIcon4').style.opacity = currentStep === 4 ? '1' : '0';
+      p1.style.transform = currentStep >= 1 ? 'rotate(-' + angle + 'deg)' : 'rotate(0deg)';
+      p2.style.transform = currentStep >= 2 ? 'rotate(' + angle + 'deg)' : 'rotate(0deg)';
+      p3.style.transform = currentStep >= 3 ? 'rotate(' + angle + 'deg)' : 'rotate(0deg)';
+      p4.style.transform = currentStep >= 4 ? 'rotate(-' + angle + 'deg)' : 'rotate(0deg)';
+    }
+  }
+
+  stepPrev.addEventListener('click', () => {
+    if (currentStep > 0) { currentStep--; renderStep(); }
+  });
+  stepNext.addEventListener('click', () => {
+    const steps = getSteps();
+    if (currentStep < steps.length - 1) { currentStep++; renderStep(); }
+  });
+
+  /* ============================================================
+     init
+  ============================================================ */
+  (function init() {
+    let savedTheme = null, savedLang = null;
+    try {
+      savedTheme = localStorage.getItem('cinta-usa-theme');
+      savedLang = localStorage.getItem('cinta-usa-lang');
+    } catch (e) {}
+    if (!savedTheme) {
+      savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    applyTheme(savedTheme);
+    applyLanguage(savedLang || 'es');
+  })();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
